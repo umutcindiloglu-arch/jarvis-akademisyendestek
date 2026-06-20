@@ -1,7 +1,10 @@
-# JARVIS Kurulum ve Kullanım Rehberi
+# JARVIS Kurulum ve Kullanım Rehberi (macOS)
 
 Bu belge, projeyi **ilk kez kuran** birinin hiçbir adımı atlamadan, baştan sona
 çalışan bir JARVIS elde etmesi için hazırlandı. Sırasıyla takip edin.
+
+> 🪟 **Windows kullanıyorsanız** bu sürüm değil, Windows'a özel sürümü kurun:
+> **[jarvis-akademisyendestek-for-Microsoft](https://github.com/umutcindiloglu-arch/jarvis-akademisyendestek-for-Microsoft)**
 
 İçindekiler:
 
