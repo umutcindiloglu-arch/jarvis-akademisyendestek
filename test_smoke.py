@@ -139,6 +139,36 @@ def test_wake_custom_word():
     assert r.wake_names_for("jarvis") == r._WAKE_NAMES
 
 
+# --- 3b) Güvenlik korumaları -----------------------------------------------
+
+def test_security_open_url():
+    import actions
+    # Tehlikeli/izin dışı şemalar reddedilmeli (open hiç çağrılmaz).
+    for bad in ["file:///etc/passwd", "javascript:alert(1)", "ftp://x/y",
+                "vnc://host", "smb://share"]:
+        out = actions.open_url(bad)
+        assert "yalnızca http" in out.lower(), f"reddedilmeliydi: {bad} -> {out}"
+
+
+def test_security_open_path():
+    import actions
+    # Güvenli klasörler dışındaki yollar reddedilmeli.
+    for bad in ["/etc/passwd", "/System/x", "~/Library/Keychains/login"]:
+        out = actions.open_path(bad)
+        assert "güvenlik" in out.lower(), f"reddedilmeliydi: {bad} -> {out}"
+    # Güvenli klasörde olsa bile çalıştırılabilir uzantı reddedilmeli.
+    out = actions.open_path("~/Desktop/zararlı.command")
+    assert "güvenlik" in out.lower(), out
+
+
+def test_security_scrub():
+    import realtime as r
+    msg = "401 Unauthorized: Bearer sk-proj-ABC123def456 geçersiz"
+    scrubbed = r._scrub(msg)
+    assert "sk-proj-ABC123def456" not in scrubbed, scrubbed
+    assert "***" in scrubbed, scrubbed
+
+
 # --- 4) Hafıza CRUD (gerçek dosya yedeklenir) -------------------------------
 
 def test_memory_roundtrip():
@@ -199,6 +229,9 @@ def main():
         ("flat tools (realtime)", test_flat_tools),
         ("system prompt", test_system_prompt),
         ("wake custom word", test_wake_custom_word),
+        ("güvenlik: open_url şema", test_security_open_url),
+        ("güvenlik: open_path sınır", test_security_open_path),
+        ("güvenlik: anahtar maskeleme", test_security_scrub),
         ("memory roundtrip", test_memory_roundtrip),
         ("store defaults", test_store_defaults),
         ("sysinfo metrics", test_sysinfo),

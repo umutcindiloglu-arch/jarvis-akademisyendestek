@@ -5,6 +5,7 @@ nereden çalıştırılırsa çalıştırılsın doğru config/ klasörünü bul
 """
 
 import json
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -45,10 +46,29 @@ def _read_json(path, fallback):
         return dict(fallback)
 
 
-def _write_json(path, data):
+def _write_json(path, data, secret=False):
+    """JSON yazar. `secret=True` ise dosyayı yalnızca sahibe okunur (0600)
+    olacak şekilde oluşturur; API anahtarı gibi gizli veriler için kullanılır."""
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    # config/ klasörünü de sahibe özel yap (varsa kısıtla, yoksa zaten kuruldu).
+    try:
+        os.chmod(CONFIG_DIR, 0o700)
+    except OSError:
+        pass
+    payload = json.dumps(data, ensure_ascii=False, indent=2)
+    if secret:
+        # 0600 ile aç: başka kullanıcılar/işlemler anahtarı okuyamasın.
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(payload)
+        # Dosya zaten 0600 izinleriyle vardıysa da garantiye al.
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            pass
+    else:
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(payload)
 
 
 def load_keys():
@@ -56,7 +76,7 @@ def load_keys():
 
 
 def save_keys(keys):
-    _write_json(KEYS_PATH, keys)
+    _write_json(KEYS_PATH, keys, secret=True)
 
 
 def has_api_key():

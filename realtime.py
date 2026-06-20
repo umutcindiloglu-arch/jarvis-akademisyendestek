@@ -60,6 +60,18 @@ _NOISE_PHRASES = (
 )
 
 
+import re as _re
+
+# Hata mesajlarında sızabilecek gizli değerleri maskeler: 'Bearer sk-...' başlığı
+# ve serbest 'sk-...' anahtarları. HUD'a yazılan istisnaların API anahtarını
+# açığa çıkarmasını engeller.
+_SECRET_RE = _re.compile(r"(?i)\b(Bearer\s+)?sk-[A-Za-z0-9_\-]+")
+
+
+def _scrub(err):
+    return _SECRET_RE.sub("***", str(err))
+
+
 def is_wake(low, names=_WAKE_NAMES):
     # Tek başına 'wake up' da uyandırır; uyandırma kelimesi + fiil de uyandırır.
     # `names` kullanıcı profilindeki uyandırma kelimesinden gelir (varsayılan jarvis).
@@ -156,7 +168,7 @@ class RealtimeClient:
             asyncio.run(self._main())
         except Exception as e:
             self.hud.set_state("error")
-            self.hud.add_message("SİSTEM", f"Realtime bağlanamadı: {e}", ui.RED)
+            self.hud.add_message("SİSTEM", f"Realtime bağlanamadı: {_scrub(e)}", ui.RED)
 
     def stop(self):
         """Kapanırken çalan sesi anında kes."""

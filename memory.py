@@ -29,10 +29,12 @@ def _save(items):
 
 
 def add(fact):
-    fact = (fact or "").strip()
+    fact = (fact or "").strip()[:500]  # tek bir kaydı makul uzunlukla sınırla
     if not fact:
         return "Boş bir şey hatırlayamam."
     items = load()
+    if len(items) >= 500:  # hafızanın sınırsız şişmesini engelle
+        return "Hafızam dolu; önce bir şeyleri unutmamı istemelisin."
     if any(fact.lower() == i["fact"].lower() for i in items):
         return "Bunu zaten biliyorum."
     items.append({"fact": fact, "ts": time.strftime("%Y-%m-%d")})

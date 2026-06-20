@@ -49,6 +49,10 @@ def _q(s):
 # --- Uygulama / dosya / web açma --------------------------------------------
 
 def open_app(name):
+    name = (name or "").strip()
+    # Uygulama adları kısadır; aşırı uzun/satır içeren girdileri reddet.
+    if not name or len(name) > 80 or any(c in name for c in "\n\r\t"):
+        return "Geçersiz uygulama adı."
     try:
         subprocess.run(["open", "-a", name], check=True, capture_output=True, text=True)
         return f"{name} açıldı."
@@ -56,16 +60,55 @@ def open_app(name):
         return f"'{name}' adlı uygulamayı bulamadım. Adı tam yazdığından emin ol."
 
 
+# Yalnızca bu klasörlerin altındaki dosyalar açılabilir (ev dizinine göre).
+_ALLOWED_OPEN_DIRS = ("Desktop", "Documents", "Downloads")
+# Açılınca kod çalıştırabilecek tehlikeli uzantı/paketler — engellenir.
+_BLOCKED_OPEN_SUFFIXES = {
+    ".app", ".command", ".sh", ".bash", ".zsh", ".scpt", ".applescript",
+    ".command", ".tool", ".terminal", ".workflow", ".action", ".pkg", ".mpkg",
+    ".dmg", ".jar", ".py", ".rb", ".pl", ".php", ".js", ".osascript",
+    ".scptd", ".prefpane", ".plugin", ".kext",
+}
+
+
 def open_path(path):
-    p = Path(path).expanduser()
+    """Yalnızca ev dizinindeki Desktop/Documents/Downloads içindeki dosyaları açar.
+
+    Model tarafından (ör. okunan bir mailden gelen metinle) çağrılabildiği için
+    yol, gerçek konumuna çözülüp bu güvenli klasörlerle sınırlanır; açılınca kod
+    çalıştırabilecek uzantılar (.app, .sh, .command…) reddedilir.
+    """
+    home = Path.home().resolve()
+    try:
+        p = Path(path).expanduser().resolve()
+    except (OSError, RuntimeError):
+        return f"'{path}' yolunu çözemedim."
+
+    allowed_roots = [home / d for d in _ALLOWED_OPEN_DIRS]
+    if not any(p == root or root in p.parents for root in allowed_roots):
+        return ("Güvenlik nedeniyle yalnızca Masaüstü, Belgeler ve İndirilenler "
+                "klasörlerindeki dosyaları açabilirim.")
+    if p.suffix.lower() in _BLOCKED_OPEN_SUFFIXES:
+        return f"Güvenlik nedeniyle '{p.name}' türündeki dosyaları açmıyorum."
     if not p.exists():
         return f"'{path}' bulunamadı."
+    if p.is_symlink():
+        return f"Güvenlik nedeniyle sembolik bağlantıları açmıyorum: '{p.name}'."
     subprocess.run(["open", str(p)])
     return f"{p.name} açıldı."
 
 
 def open_url(url):
-    if not re.match(r"^https?://", url):
+    """Yalnızca http/https adreslerini tarayıcıda açar.
+
+    Şema beyaz listesi 'file:', 'javascript:', özel uygulama şemaları gibi
+    istismar edilebilir bağlantıları engeller (model/komut enjeksiyonu savunması).
+    """
+    url = (url or "").strip()
+    if not re.match(r"^https?://", url, re.IGNORECASE):
+        # Şema yoksa güvenli varsayılan olarak https ekle; başka şema varsa reddet.
+        if re.match(r"^[a-zA-Z][a-zA-Z0-9+.\-]*:", url):
+            return "Güvenlik nedeniyle yalnızca http ve https bağlantılarını açabilirim."
         url = "https://" + url
     subprocess.run(["open", url])
     return f"{url} tarayıcıda açıldı."
@@ -103,6 +146,7 @@ def take_screenshot(path=None):
 
 
 def take_note(text):
+    text = (text or "")[:5000]  # aşırı uzun girdileri kırp
     _osascript(f'''
 tell application "Notes"
     tell account "iCloud"
@@ -256,6 +300,11 @@ end timeout'''
 def web_search(query, max_results=5):
     """DuckDuckGo HTML uç noktasından kısa sonuç parçaları çeker."""
     import requests
+
+    query = (query or "").strip()[:500]  # aşırı uzun sorguları kırp
+    if not query:
+        return "Arama için bir ifade ver."
+    max_results = max(1, min(10, int(max_results)))
 
     url = "https://html.duckduckgo.com/html/"
     try:
