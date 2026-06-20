@@ -1,0 +1,6 @@
+{
+  "openai_api_key": "",
+  "model": "gpt-4o",
+  "tts_voice": "marin",
+  "stt_model": "whisper-1"
+}

@@ -1,0 +1,19 @@
+# Sırlar — ASLA pushlanmaz
+config/api_keys.json
+
+# Kişisel profil ve hafıza (gizli)
+config/profile.json
+config/memory.json
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Geçici ses/medya
+*.wav
+*.mp3
+.cache/
+
+# macOS
+.DS_Store

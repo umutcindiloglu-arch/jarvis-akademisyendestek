@@ -1,0 +1,15 @@
+{
+  "asistan_adi": "JARVIS",
+  "uyandirma_kelimesi": "jarvis",
+  "hitap": "hocam",
+  "kullanici_adi": "",
+  "meslek": "akademisyen",
+  "dil": "tr",
+  "sehir": "İstanbul",
+  "enlem": 41.0082,
+  "boylam": 28.9784,
+  "notlar": [],
+  "tercihler": {
+    "acilis_selami": "Buyurun, ne yapmamı istersiniz?"
+  }
+}
