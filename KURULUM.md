@@ -83,8 +83,8 @@ bilgisayarınızda `config/api_keys.json` içinde saklanır, depoya **asla** git
 
 ```bash
 # 1) Projeyi indirin
-git clone https://github.com/umutcindiloglu-arch/jarvis-akademisyendestek.git
-cd jarvis-akademisyendestek
+git clone https://github.com/umutcindiloglu-arch/jarvis-akademisyendestek-for-macOS.git
+cd jarvis-akademisyendestek-for-macOS
 
 # 2) PortAudio'yu kurun (ses girişi için, bir kez)
 brew install portaudio

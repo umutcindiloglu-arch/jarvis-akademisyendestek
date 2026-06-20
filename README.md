@@ -1,9 +1,13 @@
-# JARVIS — Akademisyen Destek Sürümü
+# JARVIS — Akademisyen Destek Sürümü (macOS)
 
 Herkesin kurup kişiselleştirebileceği, gerçek zamanlı sesli, sinematik bir
 macOS masaüstü asistanı. İlk açılışta size birkaç soru sorar (size nasıl hitap
 etsin, hangi kelimeyle uyansın, hangi şehrin havasını göstersin…), cevaplarınıza
 göre kendini ayarlar ve masaüstünüzde işler yapar.
+
+> 🪟 **Windows mı kullanıyorsunuz?** Bu sürüm **macOS** içindir. Windows için
+> hazırlanmış sürüm:
+> **[jarvis-akademisyendestek-for-Microsoft](https://github.com/umutcindiloglu-arch/jarvis-akademisyendestek-for-Microsoft)**
 
 > Bu sürüm kişisel bilgi içermez. Tüm kişiselleştirme, ilk açılıştaki **kurulum
 > sihirbazı** ile sizin girdiğiniz değerlerden oluşur ve yalnızca kendi
@@ -36,8 +40,8 @@ göre kendini ayarlar ve masaüstünüzde işler yapar.
 ## Kurulum
 
 ```bash
-git clone https://github.com/umutcindiloglu-arch/jarvis-akademisyendestek.git
-cd jarvis-akademisyendestek
+git clone https://github.com/umutcindiloglu-arch/jarvis-akademisyendestek-for-macOS.git
+cd jarvis-akademisyendestek-for-macOS
 python3 -m venv venv
 ./venv/bin/python -m pip install -r requirements.txt
 ```
